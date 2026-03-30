@@ -30,9 +30,9 @@ control:
   R: 1.0
   # Energy swing-up gain
   k_energy: 5.0
-  # Switching condition
-  switching_radius: 0.5   # State-space radius for LQR activation
-  hysteresis: 0.1         # Hysteresis band to prevent chattering
+  # Switching condition (Lyapunov distance based)
+  switching_radius: 10.0  # Lyapunov distance threshold for LQR activation
+  hysteresis: 5.0         # Hysteresis multiplier (deactivate at radius*(1+hyst))
 
 # Analysis parameters
 analysis:
