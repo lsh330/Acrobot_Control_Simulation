@@ -1,0 +1,49 @@
+# Acrobot Control Simulation Configuration
+# Copy this file to config.yaml and modify as needed.
+
+# Physical parameters (Spong/Drake canonical benchmark)
+physical:
+  m1: 1.0        # Link 1 mass [kg]
+  m2: 1.0        # Link 2 mass [kg]
+  l1: 1.0        # Link 1 length [m]
+  l2: 1.0        # Link 2 length [m]
+  lc1: 0.5       # Link 1 center of mass [m]
+  lc2: 0.5       # Link 2 center of mass [m]
+  Ic1: 0.083     # Link 1 moment of inertia about CoM [kg*m^2]
+  Ic2: 0.083     # Link 2 moment of inertia about CoM [kg*m^2]
+  b1: 0.1        # Joint 1 damping coefficient [N*m*s/rad]
+  b2: 0.1        # Joint 2 damping coefficient [N*m*s/rad]
+  g: 9.81        # Gravitational acceleration [m/s^2]
+
+# Simulation parameters
+simulation:
+  dt: 0.001           # Integration time step [s]
+  t_final: 10.0       # Total simulation time [s]
+  integrator: rk4     # Integration method: rk4, rk45
+  initial_state: [0.0, 0.0, 0.0, 0.0]  # [theta1, theta2, dtheta1, dtheta2]
+
+# Control parameters
+control:
+  method: hybrid      # Control method: lqr, energy_swing_up, hybrid
+  # LQR weights
+  Q_diag: [1.0, 1.0, 1.0, 1.0]
+  R: 1.0
+  # Energy swing-up gain
+  k_energy: 5.0
+  # Switching condition
+  switching_radius: 0.5   # State-space radius for LQR activation
+  hysteresis: 0.1         # Hysteresis band to prevent chattering
+
+# Analysis parameters
+analysis:
+  roa_samples: 1000       # Monte Carlo samples for ROA estimation
+  robustness_variation: 0.2  # Parameter uncertainty range (±20%)
+  robustness_trials: 200     # Monte Carlo robustness trials
+
+# Visualization parameters
+visualization:
+  save_plots: true
+  save_gif: true
+  fps: 30
+  dpi: 150
+  output_dir: output
