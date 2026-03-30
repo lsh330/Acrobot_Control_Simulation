@@ -93,11 +93,10 @@ def lqr_control(
     Returns:
         Saturated control torque (scalar).
     """
-    import math
+    from ..utils.angle import wrap_angle
     err = state - target
-    # Wrap angles to [-pi, pi]
-    err[0] = math.atan2(math.sin(err[0]), math.cos(err[0]))
-    err[1] = math.atan2(math.sin(err[1]), math.cos(err[1]))
+    err[0] = wrap_angle(err[0])
+    err[1] = wrap_angle(err[1])
 
     u = float((-K @ err).item())
 

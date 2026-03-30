@@ -41,7 +41,9 @@ def run_simulation(config: SystemConfig) -> SimulationResult:
     energy = np.empty(n_steps, dtype=np.float64)
     ke = np.empty(n_steps, dtype=np.float64)
     pe = np.empty(n_steps, dtype=np.float64)
-    switch_list: list[float] = []
+    # Pre-allocate switch buffer (max ~500 switches expected)
+    switch_buf = np.empty(512, dtype=np.float64)
+    switch_count = 0
 
     # Initial state
     states[0] = np.array(sim.initial_state, dtype=np.float64)
@@ -68,9 +70,11 @@ def run_simulation(config: SystemConfig) -> SimulationResult:
         u = controller.compute_control(s)
         controls[i] = u
 
-        # Detect switching events
+        # Detect switching events (pre-allocated buffer)
         if controller.is_using_lqr != prev_lqr:
-            switch_list.append(time[i])
+            if switch_count < len(switch_buf):
+                switch_buf[switch_count] = time[i]
+                switch_count += 1
             prev_lqr = controller.is_using_lqr
 
         # Integrate one step
@@ -78,7 +82,11 @@ def run_simulation(config: SystemConfig) -> SimulationResult:
             s[0], s[1], s[2], s[3], u, sim.dt,
             d.alpha, d.beta, d.delta, d.phi1, d.phi2, p.b1, p.b2)
 
-        states[i + 1] = (q1, q2, dq1, dq2)
+        # Direct index assignment (avoids tuple creation)
+        states[i + 1, 0] = q1
+        states[i + 1, 1] = q2
+        states[i + 1, 2] = dq1
+        states[i + 1, 3] = dq2
 
         # Record energy
         ke[i + 1] = kinetic_energy(q2, dq1, dq2, d.alpha, d.beta, d.delta)
@@ -95,5 +103,5 @@ def run_simulation(config: SystemConfig) -> SimulationResult:
         energy=energy,
         kinetic_energy=ke,
         potential_energy=pe,
-        switch_times=np.array(switch_list, dtype=np.float64),
+        switch_times=switch_buf[:switch_count].copy(),
     )

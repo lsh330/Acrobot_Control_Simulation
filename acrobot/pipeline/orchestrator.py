@@ -13,9 +13,10 @@ from ..parameters.derived import compute_derived
 from ..simulation.runner import run_simulation
 from ..analysis.stability import verify_stability
 from ..analysis.performance import compute_metrics
-from ..visualization.plots import plot_dynamics_analysis, plot_phase_portrait
-from ..visualization.animation import generate_animation
 from ..utils.logger import info
+
+# Visualization modules are lazy-imported to avoid matplotlib/PIL
+# overhead when plots/GIF are disabled (~100ms startup savings)
 
 
 def run_pipeline(config: SystemConfig) -> dict:
@@ -69,6 +70,7 @@ def run_pipeline(config: SystemConfig) -> dict:
 
     if config.visualization.save_plots:
         info("Generating plots...")
+        from ..visualization.plots import plot_dynamics_analysis, plot_phase_portrait
         outputs["dynamics_plot"] = plot_dynamics_analysis(
             result, plots_dir, config.visualization.dpi)
         outputs["phase_plot"] = plot_phase_portrait(
@@ -77,6 +79,7 @@ def run_pipeline(config: SystemConfig) -> dict:
 
     if config.visualization.save_gif:
         info("Generating animation GIF...")
+        from ..visualization.animation import generate_animation
         outputs["animation"] = generate_animation(
             result, config.physical, gifs_dir,
             config.visualization.fps, dpi=80)
